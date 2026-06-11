@@ -62,6 +62,11 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -114,6 +119,11 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+      	<groupId>org.sonarsource.scanner.maven</groupId>
+      	<artifactId>sonar-maven-plugin</artifactId>
+       	<version>5.7.0.6970</version>
+    	</plugin>
 		</plugins>
 	</build>
 
