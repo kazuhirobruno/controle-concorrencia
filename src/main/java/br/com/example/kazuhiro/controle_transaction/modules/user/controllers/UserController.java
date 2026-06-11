@@ -39,7 +39,6 @@ public class UserController {
       var result = this.createUserUseCase.execute(userEntity);
       return ResponseEntity.ok().body(result);
     } catch (Exception e) {
-      System.out.println(e.getMessage());
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
