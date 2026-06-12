@@ -1,5 +1,6 @@
 @baseUrl = http://localhost:8080
 
+### Criar um novo cliente
 POST {{baseUrl}}/clientes/ 
 Content-Type: application/json
 
@@ -9,3 +10,12 @@ Content-Type: application/json
   "limite": 10000,
   "saldo": 0
 } 
+
+### Autenticar o cliente (Login)
+POST {{baseUrl}}/clientes/auth
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "secret"
+}
