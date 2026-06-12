@@ -17,5 +17,16 @@ Content-Type: application/json
 
 {
   "username": "testuser",
-  "password": "secret"
+  "password": "testee"
+}
+
+
+### Trocar senha do cliente
+PATCH {{baseUrl}}/clientes/password
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0cmFuc2FjdGlvbi1jb250cm9sIiwic3ViIjoiMWE5YTUwMmYtZjQ4Yi00ZDlhLWE0NTItZWIxNmExN2Y0NTI4Iiwicm9sZXMiOlsiQ0xJRU5UIl0sImV4cCI6MTc4MTI5MzE2NH0.v1wBMQ0WyR0C_I2bOa3RMk5ooVwwLK9KjmOUkqRZjls
+
+{
+  "new_password": "testeee",
+  "confirm_new_password": "testeee"
 }

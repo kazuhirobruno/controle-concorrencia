@@ -36,7 +36,7 @@ public class UserEntity {
   private String username;
 
   @NotBlank
-  @Length(max = 128)
+  @Length(max = 128, message = "A nova senha deve conter até 128 caracteres.")
   @Schema(name = "password", description = "Senha do usuário.", requiredMode = RequiredMode.REQUIRED)
   private String password;
 

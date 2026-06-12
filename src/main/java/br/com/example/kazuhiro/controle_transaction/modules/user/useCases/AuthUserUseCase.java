@@ -39,7 +39,7 @@ public class AuthUserUseCase {
     var passwordMatches = this.passwordEncoder.matches(authUserRequestDTO.getPassword(), user.getPassword());
 
     if (!passwordMatches) {
-      throw new AuthenticationException();
+      throw new AuthenticationException("Username ou Password incorreto.");
     }
 
     Algorithm algorithm = Algorithm.HMAC256(secretKey);

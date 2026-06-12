@@ -17,59 +17,63 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import br.com.example.kazuhiro.controle_transaction.modules.user.dtos.AuthUserRequestDTO;
 import br.com.example.kazuhiro.controle_transaction.modules.user.dtos.AuthUserResponseDTO;
 import br.com.example.kazuhiro.controle_transaction.modules.user.useCases.AuthUserUseCase;
+import br.com.example.kazuhiro.controle_transaction.providers.AuthJWTProvider;
 
 @WebMvcTest(UserAuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class UserAuthControllerTest {
 
-  @Autowired
-  private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-  @MockitoBean
-  private AuthUserUseCase authUserUseCase;
+    @MockitoBean
+    private AuthUserUseCase authUserUseCase;
 
-  private AuthUserRequestDTO validAuthRequest;
-  private AuthUserResponseDTO mockResponse;
+    @MockitoBean
+    private AuthJWTProvider authJWTProvider;
 
-  @BeforeEach
-  void setUp() {
-    validAuthRequest = AuthUserRequestDTO.builder()
-        .username("testuser")
-        .password("secret")
-        .build();
+    private AuthUserRequestDTO validAuthRequest;
+    private AuthUserResponseDTO mockResponse;
 
-    mockResponse = AuthUserResponseDTO.builder()
-        .access_token("jwt-token-de-teste-1234")
-        .build();
-  }
+    @BeforeEach
+    void setUp() {
+        validAuthRequest = AuthUserRequestDTO.builder()
+                .username("testuser")
+                .password("secret")
+                .build();
 
-  @Test
-  @DisplayName("Deve autenticar um cliente com sucesso e retornar o objeto de resposta com status 200 OK.")
-  void shouldAuthenticateClientWithSuccess() throws Exception {
-    Mockito.when(this.authUserUseCase.execute(Mockito.any(AuthUserRequestDTO.class)))
-        .thenReturn(mockResponse);
+        mockResponse = AuthUserResponseDTO.builder()
+                .access_token("jwt-token-de-teste-1234")
+                .build();
+    }
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/clientes/auth")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsString(validAuthRequest)))
-        .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(mockResponse)));
-  }
+    @Test
+    @DisplayName("Deve autenticar um cliente com sucesso e retornar o objeto de resposta com status 200 OK.")
+    void shouldAuthenticateClientWithSuccess() throws Exception {
+        Mockito.when(this.authUserUseCase.execute(Mockito.any(AuthUserRequestDTO.class)))
+                .thenReturn(mockResponse);
 
-  @Test
-  @DisplayName("Deve retornar status 401 Unauthorized quando as credenciais forem inválidas ou o UseCase lançar exceção.")
-  void shouldReturnUnauthorizedWhenAuthenticationFails() throws Exception {
-    String mensagemErroEsperada = "Usuário ou senha incorretos";
-    Mockito.when(this.authUserUseCase.execute(Mockito.any(AuthUserRequestDTO.class)))
-        .thenThrow(new RuntimeException(mensagemErroEsperada));
+        mockMvc.perform(MockMvcRequestBuilders.post("/clientes/auth")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validAuthRequest)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(mockResponse)));
+    }
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/clientes/auth")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsString(validAuthRequest)))
-        .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-        .andExpect(MockMvcResultMatchers.content().string(mensagemErroEsperada));
-  }
+    @Test
+    @DisplayName("Deve retornar status 401 Unauthorized quando as credenciais forem inválidas ou o UseCase lançar exceção.")
+    void shouldReturnUnauthorizedWhenAuthenticationFails() throws Exception {
+        String mensagemErroEsperada = "Usuário ou senha incorretos";
+        Mockito.when(this.authUserUseCase.execute(Mockito.any(AuthUserRequestDTO.class)))
+                .thenThrow(new RuntimeException(mensagemErroEsperada));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/clientes/auth")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validAuthRequest)))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+                .andExpect(MockMvcResultMatchers.content().string(mensagemErroEsperada));
+    }
 }

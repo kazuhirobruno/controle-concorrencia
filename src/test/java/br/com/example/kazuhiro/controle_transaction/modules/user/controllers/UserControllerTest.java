@@ -2,6 +2,8 @@ package br.com.example.kazuhiro.controle_transaction.modules.user.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -12,65 +14,129 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import br.com.example.kazuhiro.controle_transaction.modules.user.entitites.UserEntity;
 import br.com.example.kazuhiro.controle_transaction.modules.user.useCases.CreateUserUseCase;
+import br.com.example.kazuhiro.controle_transaction.modules.user.dtos.ChangeUserPasswordDTO;
+import br.com.example.kazuhiro.controle_transaction.modules.user.entitites.UserEntity;
+import br.com.example.kazuhiro.controle_transaction.modules.user.useCases.ChangeUserPasswordUseCase;
+import br.com.example.kazuhiro.controle_transaction.providers.AuthJWTProvider;
 
-@WebMvcTest(UserController.class)
+import java.util.UUID;
+
+@WebMvcTest({ UserController.class })
 @AutoConfigureMockMvc(addFilters = false)
 public class UserControllerTest {
 
-  @Autowired
-  private MockMvc mockMvc; // Envia as requisições HTTP simuladas
+    @Autowired
+    private MockMvc mockMvc;
 
-  @Autowired
-  private ObjectMapper objectMapper; // Transforma objetos Java em JSON
+    @Autowired
+    private ObjectMapper objectMapper;
 
-  @MockitoBean
-  private CreateUserUseCase createUserUseCase; // Cria um mock do seu UseCase
+    @MockitoBean
+    private CreateUserUseCase createUserUseCase;
 
-  private UserEntity validUser;
+    @MockitoBean
+    private ChangeUserPasswordUseCase changeUserPasswordUseCase;
 
-  @BeforeEach
-  void setUp() {
-    // 2. Inicializa um objeto de teste limpo antes de cada execução
-    validUser = UserEntity.builder()
-        .username("test")
-        .password("test")
-        .limite(1000)
-        .saldo(0).build();
-  }
+    @MockitoBean
+    private AuthJWTProvider authJWTProvider;
 
-  @Test
-  @DisplayName("Deve criar um usuário com sucesso e retornar status 200 OK.")
-  void shouldCreateUserWithSuccess() throws Exception {
-    // Mock do retorno do UseCase
-    when(createUserUseCase.execute(any(UserEntity.class))).thenReturn(validUser);
+    private UserEntity validUser;
+    private ChangeUserPasswordDTO validPasswordDto;
+    private UUID mockClientId;
 
-    // Executa a requisição POST simulada
-    mockMvc.perform(MockMvcRequestBuilders.post("/clientes/") // Ajuste para a rota real do seu controller
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsString(validUser)))
-        .andExpect(MockMvcResultMatchers.status().isOk());
-  }
+    @BeforeEach
+    void setUp() {
+        mockClientId = UUID.randomUUID();
 
-  @Test
-  @DisplayName("Deve retornar status 400 Bad Request existir usuário com username salvo.")
-  @WithMockUser
-  void shouldReturnBadRequestWhenUseCaseThrowsException() throws Exception {
-    String errorMessage = "Usuário existente.";
+        validUser = UserEntity.builder()
+                .username("test")
+                .password("test")
+                .limite(1000)
+                .saldo(0)
+                .build();
 
-    when(createUserUseCase.execute(any(UserEntity.class)))
-        .thenThrow(new RuntimeException(errorMessage));
+        validPasswordDto = ChangeUserPasswordDTO.builder()
+                .newPassword("novaSenha123")
+                .confirmNewPassword("novaSenha123")
+                .build();
+    }
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/clientes/")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsString(validUser)))
-        .andExpect(MockMvcResultMatchers.status().isBadRequest())
-        .andExpect(MockMvcResultMatchers.content().string(errorMessage));
-  }
+    @Test
+    @DisplayName("Deve criar um usuário com sucesso e retornar status 200 OK.")
+    void shouldCreateUserWithSuccess() throws Exception {
+        when(createUserUseCase.execute(any(UserEntity.class))).thenReturn(validUser);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/clientes/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validUser)))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    @DisplayName("Deve retornar status 400 Bad Request existir usuário com username salvo.")
+    @WithMockUser
+    void shouldReturnBadRequestWhenUseCaseThrowsException() throws Exception {
+        String errorMessage = "Usuário existente.";
+
+        when(createUserUseCase.execute(any(UserEntity.class)))
+                .thenThrow(new RuntimeException(errorMessage));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/clientes/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validUser)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.content().string(errorMessage));
+    }
+
+    @Test
+    @DisplayName("Deve retornar status 204 No Content quando a senha for alterada com sucesso.")
+    void shouldReturn204WhenPasswordChangedSuccessfully() throws Exception {
+        doNothing().when(changeUserPasswordUseCase).execute(any(ChangeUserPasswordDTO.class), any(UUID.class));
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/clientes/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validPasswordDto))
+                .requestAttr("cliente_id", mockClientId))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Senha alterada com sucesso."));
+    }
+
+    @Test
+    @DisplayName("Deve retornar status 400 Bad Request quando as senhas enviadas forem diferentes.")
+    void shouldReturn400WhenPasswordsDoNotMatch() throws Exception {
+        String errorMessage = "A nova senha e a confirmação de senha não coincidem.";
+
+        doThrow(new IllegalArgumentException(errorMessage))
+                .when(changeUserPasswordUseCase).execute(any(ChangeUserPasswordDTO.class), any(UUID.class));
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/clientes/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validPasswordDto))
+                .requestAttr("cliente_id", mockClientId))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.content().string(errorMessage));
+    }
+
+    @Test
+    @DisplayName("Deve retornar status 404 Not Found quando o cliente não for encontrado no sistema.")
+    void shouldReturn404WhenUserNotFound() throws Exception {
+        String errorMessage = "Usuário não encontrado.";
+
+        doThrow(new UsernameNotFoundException(errorMessage))
+                .when(changeUserPasswordUseCase).execute(any(ChangeUserPasswordDTO.class), any(UUID.class));
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/clientes/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validPasswordDto))
+                .requestAttr("cliente_id", mockClientId))
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andExpect(MockMvcResultMatchers.content().string(errorMessage));
+    }
 }
