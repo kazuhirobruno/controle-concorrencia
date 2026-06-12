@@ -8,10 +8,13 @@ import org.hibernate.validator.constraints.Length;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import br.com.example.kazuhiro.controle_transaction.modules.transaction.types.TransactionType;
+import br.com.example.kazuhiro.controle_transaction.modules.user.entitites.UserEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
@@ -35,6 +38,11 @@ public class Transaction {
   @Length(max = 250)
   @Schema(example = "Valor a receber", description = "Descreve o motivo da transação.", requiredMode = RequiredMode.REQUIRED)
   private String descricao;
+
+  @ManyToOne
+  @JoinColumn(name = "client_id", nullable = false)
+  @Schema(hidden = true)
+  private UserEntity user;
 
   @CreationTimestamp
   private LocalDateTime createdAt;
