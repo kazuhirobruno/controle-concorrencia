@@ -5,7 +5,9 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +17,7 @@ import br.com.example.kazuhiro.controle_transaction.modules.user.dtos.ChangeUser
 import br.com.example.kazuhiro.controle_transaction.modules.user.entitites.UserEntity;
 import br.com.example.kazuhiro.controle_transaction.modules.user.useCases.ChangeUserPasswordUseCase;
 import br.com.example.kazuhiro.controle_transaction.modules.user.useCases.CreateUserUseCase;
+import br.com.example.kazuhiro.controle_transaction.modules.user.useCases.DeleteUserUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -37,6 +40,9 @@ public class UserController {
 
   @Autowired
   private ChangeUserPasswordUseCase changeUserPasswordUseCase;
+
+  @Autowired
+  private DeleteUserUseCase deleteUserUseCase;
 
   @PostMapping("/")
   @Operation(summary = "Cadastrar novo cliente", description = "Função responsável por realizar o cadastro do cliente na base de dados.")
@@ -71,11 +77,35 @@ public class UserController {
 
       this.changeUserPasswordUseCase.execute(changeUserPasswordDTO, clientId);
 
-      return ResponseEntity.ok("Senha alterada com sucesso.");
+      return ResponseEntity.noContent().build();
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     } catch (UsernameNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno ao processar a requisição.");
+    }
+  }
+
+  @DeleteMapping("/delete")
+  @Operation(summary = "Deletar conta do cliente logado", description = "Exclui permanentemente a conta do usuário atualmente autenticado no token JWT.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso."),
+      @ApiResponse(responseCode = "401", description = "Token JWT ausente, expirado ou inválido."),
+      @ApiResponse(responseCode = "404", description = "Usuário não encontrado.")
+  })
+  @SecurityRequirement(name = "jwt_auth")
+  public ResponseEntity<Object> deleteUser(HttpServletRequest request) {
+    try {
+      String clientIdStr = request.getAttribute("cliente_id").toString();
+      UUID clientId = UUID.fromString(clientIdStr);
+
+      this.deleteUserUseCase.execute(clientId);
+      return ResponseEntity.noContent().build();
+    } catch (UsernameNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado.");
+    } catch (AuthenticationException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token JWT ausente, expirado ou inválido.");
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno ao processar a requisição.");
     }

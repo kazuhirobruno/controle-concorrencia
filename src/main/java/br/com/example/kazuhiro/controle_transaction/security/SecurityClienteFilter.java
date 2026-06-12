@@ -29,7 +29,8 @@ public class SecurityClienteFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
     String header = request.getHeader("Authorization");
 
-    if (request.getRequestURI().contains("/clientes/password")) {
+    if (request.getRequestURI().contains("/clientes/password")
+        || request.getRequestURI().contains("/clientes/delete")) {
       if (header == null || !header.startsWith("Bearer ")) {
         returnJsonError(response, "Token de autenticação ausente ou malformatado.",
             HttpServletResponse.SC_UNAUTHORIZED);

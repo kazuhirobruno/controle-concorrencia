@@ -5,7 +5,7 @@ POST {{baseUrl}}/clientes/
 Content-Type: application/json
 
 {
-  "username": "testuser",
+  "username": "testuser3",
   "password": "secret",
   "limite": 10000,
   "saldo": 0
@@ -20,6 +20,15 @@ Content-Type: application/json
   "password": "testee"
 }
 
+### Autenticar o cliente (Login)
+POST {{baseUrl}}/clientes/auth
+Content-Type: application/json
+
+{
+  "username": "testuser3",
+  "password": "secret"
+}
+
 
 ### Trocar senha do cliente
 PATCH {{baseUrl}}/clientes/password
@@ -30,3 +39,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0cmFuc2Fjd
   "new_password": "testeee",
   "confirm_new_password": "testeee"
 }
+
+### Deletar o cliente
+DELETE  {{baseUrl}}/clientes/delete
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0cmFuc2FjdGlvbi1jb250cm9sIiwic3ViIjoiMzA2NmRhZjgtZDNjMy00NzNiLWJhYTYtNjI1MzNkMDk5NGU5Iiwicm9sZXMiOlsiQ0xJRU5UIl0sImV4cCI6MTc4MTI5NDg3M30.mAmTKAc6t5h8jZGgkcLd_BxU6rRWQ17TM4Z_4utV9ZY
