@@ -5,8 +5,9 @@ POST {{baseUrl}}/clientes/
 Content-Type: application/json
 
 {
-  "username": "testuser7",
+  "username": "testuser1",
   "password": "secret",
+  "confirmPassword": "secret",
   "limite": 10000,
   "saldo": 0
 } 
@@ -16,7 +17,7 @@ POST {{baseUrl}}/clientes/auth
 Content-Type: application/json
 
 {
-  "username": "testuser5",
+  "username": "testuser1",
   "password": "secret"
 }
 
