@@ -20,7 +20,7 @@ public class CreateTransactionUseCase {
   private final UserBalanceService userBalanceService;
   private final TransactionRepository transactionRepository;
 
-  @Transactional
+  @Transactional(readOnly = false)
   public CreateTransactionResponseDTO execute(String urlUserId, String tokenUserId,
       CreateTransactionRequestDTO createTransactionRequestDTO) {
     String transactionType = createTransactionRequestDTO.getTipo();

@@ -18,14 +18,14 @@ Content-Type: application/json
 
 {
   "username": "testuser1",
-  "password": "secret"
+  "password": "testeee"
 }
 
 
 ### Trocar senha do cliente
 PATCH {{baseUrl}}/clientes/password
 Content-Type: application/json
-Authorization: Bearer Token
+Authorization: Bearer TOKEN
 
 {
   "new_password": "testeee",
