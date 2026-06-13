@@ -151,7 +151,7 @@ public class UserControllerTest {
         void shouldReturn204WhenUserDeletedSuccessfully() throws Exception {
                 doNothing().when(deleteUserUseCase).execute(any(UUID.class));
 
-                mockMvc.perform(MockMvcRequestBuilders.delete("/clientes/delete")
+                mockMvc.perform(MockMvcRequestBuilders.delete("/clientes/")
                                 .requestAttr("cliente_id", mockClientId))
                                 .andExpect(MockMvcResultMatchers.status().isNoContent());
         }
@@ -162,7 +162,7 @@ public class UserControllerTest {
                 doThrow(new UsernameNotFoundException("Usuário não encontrado."))
                                 .when(deleteUserUseCase).execute(any(UUID.class));
 
-                mockMvc.perform(MockMvcRequestBuilders.delete("/clientes/delete")
+                mockMvc.perform(MockMvcRequestBuilders.delete("/clientes/")
                                 .requestAttr("cliente_id", mockClientId))
                                 .andExpect(MockMvcResultMatchers.status().isNotFound())
                                 .andExpect(MockMvcResultMatchers.content().string("Usuário não encontrado."));
@@ -175,7 +175,7 @@ public class UserControllerTest {
                 })
                                 .when(deleteUserUseCase).execute(any(UUID.class));
 
-                mockMvc.perform(MockMvcRequestBuilders.delete("/clientes/delete")
+                mockMvc.perform(MockMvcRequestBuilders.delete("/clientes/")
                                 .requestAttr("cliente_id", mockClientId))
                                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                                 .andExpect(MockMvcResultMatchers.content()

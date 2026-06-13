@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -68,6 +69,7 @@ public class UserController {
       @ApiResponse(responseCode = "400", description = "Dados inválidos ou senhas não coincidem."),
       @ApiResponse(responseCode = "401", description = "Token JWT ausente, expirado ou inválido.")
   })
+  @PreAuthorize("hasRole('CLIENT')")
   @SecurityRequirement(name = "jwt_auth")
   public ResponseEntity<Object> changePassword(HttpServletRequest request,
       @Valid @RequestBody ChangeUserPasswordDTO changeUserPasswordDTO) {
@@ -87,13 +89,14 @@ public class UserController {
     }
   }
 
-  @DeleteMapping("/delete")
+  @DeleteMapping("/")
   @Operation(summary = "Deletar conta do cliente logado", description = "Exclui permanentemente a conta do usuário atualmente autenticado no token JWT.")
   @ApiResponses({
       @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso."),
       @ApiResponse(responseCode = "401", description = "Token JWT ausente, expirado ou inválido."),
       @ApiResponse(responseCode = "404", description = "Usuário não encontrado.")
   })
+  @PreAuthorize("hasRole('CLIENT')")
   @SecurityRequirement(name = "jwt_auth")
   public ResponseEntity<Object> deleteUser(HttpServletRequest request) {
     try {

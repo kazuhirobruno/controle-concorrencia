@@ -9,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,13 +25,23 @@ public class SecurityClienteFilter extends OncePerRequestFilter {
   @Autowired
   private AuthJWTProvider authJWTProvider;
 
+  private final AntPathMatcher pathMatcher = new AntPathMatcher();
+
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-    String header = request.getHeader("Authorization");
 
-    if (request.getRequestURI().contains("/clientes/password")
-        || request.getRequestURI().contains("/clientes/delete")) {
+    String method = request.getMethod();
+    String uri = request.getRequestURI();
+
+    boolean isDeleteClientRoute = "DELETE".equalsIgnoreCase(method) &&
+        (pathMatcher.match("/clientes", uri) || pathMatcher.match("/clientes/", uri));
+
+    boolean isPasswordRoute = "PATCH".equalsIgnoreCase(method) && pathMatcher.match("/clientes/password", uri);
+    boolean isTransactionRoute = "POST".equalsIgnoreCase(method) && pathMatcher.match("/clientes/*/transacoes", uri);
+
+    if (isDeleteClientRoute || isPasswordRoute || isTransactionRoute) {
+      String header = request.getHeader("Authorization");
       if (header == null || !header.startsWith("Bearer ")) {
         returnJsonError(response, "Token de autenticação ausente ou malformatado.",
             HttpServletResponse.SC_UNAUTHORIZED);

@@ -5,7 +5,7 @@ POST {{baseUrl}}/clientes/
 Content-Type: application/json
 
 {
-  "username": "testuser3",
+  "username": "testuser7",
   "password": "secret",
   "limite": 10000,
   "saldo": 0
@@ -16,16 +16,7 @@ POST {{baseUrl}}/clientes/auth
 Content-Type: application/json
 
 {
-  "username": "testuser",
-  "password": "testee"
-}
-
-### Autenticar o cliente (Login)
-POST {{baseUrl}}/clientes/auth
-Content-Type: application/json
-
-{
-  "username": "testuser3",
+  "username": "testuser5",
   "password": "secret"
 }
 
@@ -41,6 +32,16 @@ Authorization: Bearer Token
 }
 
 ### Deletar o cliente
-DELETE  {{baseUrl}}/clientes/delete
+DELETE  {{baseUrl}}/clientes/
 Content-Type: application/json
-Authorization: Bearer Token
+Authorization: Bearer TOKEN
+### Adicionar nova transacao
+POST  {{baseUrl}}/clientes/ID/transacoes
+Content-Type: application/json
+Authorization: Bearer TOKEN
+
+{
+    "valor": 1000,
+    "tipo" : "d",
+    "descricao" : "descricao"
+}
