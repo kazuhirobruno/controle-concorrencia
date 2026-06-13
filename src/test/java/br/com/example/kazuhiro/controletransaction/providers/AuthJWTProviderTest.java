@@ -30,7 +30,7 @@ class AuthJWTProviderTest {
   void shouldValidateTokenWithSuccess() {
     Algorithm algorithm = Algorithm.HMAC256(secretKeyMock);
 
-    Clock fixedClock = Clock.fixed(Instant.parse("2026-06-13T21:00:00Z"), ZoneId.of("UTC"));
+    Clock fixedClock = Clock.fixed(Instant.parse("2060-06-13T21:00:00Z"), ZoneId.of("UTC"));
     Instant now = Instant.now(fixedClock);
     Instant expiresAt = now.plusSeconds(1800);
 
