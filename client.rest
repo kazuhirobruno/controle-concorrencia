@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:8080
 @ID = 647ed98a-f0ae-44b7-bdda-2c8c95079b4d
-@TOKEN =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0cmFuc2FjdGlvbi1jb250cm9sIiwic3ViIjoiNjQ3ZWQ5OGEtZjBhZS00NGI3LWJkZGEtMmM4Yzk1MDc5YjRkIiwicm9sZXMiOlsiQ0xJRU5UIl0sImV4cCI6MTc4MTQ2NzQwNn0.ESRSq2vcImPv2uaVk1o28jmBC17SnNtBYAs4nj4GY94
+@TOKEN =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0cmFuc2FjdGlvbi1jb250cm9sIiwic3ViIjoiNjQ3ZWQ5OGEtZjBhZS00NGI3LWJkZGEtMmM4Yzk1MDc5YjRkIiwicm9sZXMiOlsiQ0xJRU5UIl0sImV4cCI6MTc4MTQ2NzkyNn0.E7Ly8t4ottNOshZ9WG2oTYLEMuTxmh3u1tr_8Uh-OEQ
 
 ### Criar um novo cliente
 POST {{baseUrl}}/clientes/ 
@@ -50,7 +50,7 @@ Authorization: Bearer {{TOKEN}}
     "descricao" : "descricao"
 }
 
-### Adicionar nova transacao
+### Consultar transacão de usuário
 GET  {{baseUrl}}/clientes/{{ID}}/extrato
 Content-Type: application/json
 Authorization: Bearer {{TOKEN}}

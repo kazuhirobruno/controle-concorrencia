@@ -1,7 +1,7 @@
 package br.com.example.kazuhiro.controletransaction.security;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Map;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -84,7 +84,7 @@ public class SecurityClienteFilter extends OncePerRequestFilter {
     Map<String, Object> errorBody = Map.of(
         "message", message,
         "status", status,
-        "timestamp", LocalDateTime.now().toString());
+        "timestamp", Instant.now().toString());
 
     response.getWriter().write(objectMapper.writeValueAsString(errorBody));
   }
