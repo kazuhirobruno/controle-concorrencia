@@ -18,7 +18,7 @@ Content-Type: application/json
 
 {
   "username": "testuser1",
-  "password": "testeee"
+  "password": "secret"
 }
 
 
@@ -40,9 +40,8 @@ Authorization: Bearer TOKEN
 POST  {{baseUrl}}/clientes/ID/transacoes
 Content-Type: application/json
 Authorization: Bearer TOKEN
-
 {
     "valor": 1000,
-    "tipo" : "d",
+    "tipo" : "c",
     "descricao" : "descricao"
 }

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
@@ -17,7 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import br.com.example.kazuhiro.controletransaction.exceptions.ResourceNotFoundException;
+import br.com.example.kazuhiro.controletransaction.exceptions.UserIdNotFoundException;
+import br.com.example.kazuhiro.controletransaction.modules.user.entitites.UserEntity;
 import br.com.example.kazuhiro.controletransaction.modules.user.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,33 +32,45 @@ class DeleteUserUseCaseTest {
   private DeleteUserUseCase deleteUserUseCase;
 
   private UUID mockUserId;
+  private UserEntity mockUser;
 
   @BeforeEach
   void setUp() {
     mockUserId = UUID.randomUUID();
+
+    mockUser = UserEntity.builder()
+        .id(mockUserId)
+        .username("original_user")
+        .password("password123")
+        .active(true)
+        .build();
   }
 
   @Test
-  @DisplayName("Deve deletar um usuário com sucesso quando o ID existir.")
+  @DisplayName("Deve inativar e anonimizar um usuário com sucesso quando o ID existir.")
   void shouldDeleteUserWithSuccess() {
-    when(userRepository.existsById(mockUserId)).thenReturn(true);
+    when(userRepository.findById(mockUserId)).thenReturn(Optional.of(mockUser));
 
     deleteUserUseCase.execute(mockUserId);
 
-    verify(userRepository).existsById(mockUserId);
-    verify(userRepository).deleteById(mockUserId);
+    verify(userRepository, times(1)).findById(mockUserId);
+    verify(userRepository, times(1)).save(mockUser);
+
+    Assertions.assertThat(mockUser.isActive()).isFalse();
+    Assertions.assertThat(mockUser.getUsername())
+        .startsWith("deleted_")
+        .hasSizeLessThanOrEqualTo(50);
   }
 
   @Test
-  @DisplayName("Deve lançar ResourceNotFoundException quando o ID do usuário não for encontrado.")
+  @DisplayName("Deve lançar UserIdNotFoundException quando o ID do usuário não for encontrado.")
   void shouldThrowExceptionWhenUserNotFound() {
-    when(userRepository.existsById(mockUserId)).thenReturn(false);
+    when(userRepository.findById(mockUserId)).thenReturn(Optional.empty());
 
     Assertions.assertThatThrownBy(() -> deleteUserUseCase.execute(mockUserId))
-        .isInstanceOf(ResourceNotFoundException.class)
-        .hasMessageContaining("Recurso indisponível ou inexistente.");
+        .isInstanceOf(UserIdNotFoundException.class);
 
-    verify(userRepository, times(1)).existsById(mockUserId);
-    verify(userRepository, never()).deleteById(any(UUID.class));
+    verify(userRepository, times(1)).findById(mockUserId);
+    verify(userRepository, never()).save(any(UserEntity.class));
   }
 }

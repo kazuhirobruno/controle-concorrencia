@@ -26,7 +26,7 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http, SecurityClienteFilter securityClienteFilter)
       throws Exception {
     http.csrf(csrf -> csrf.disable())
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Adicione isso
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> {
           auth.requestMatchers(PERMIT_ALL_LIST).permitAll();
           auth.requestMatchers("/clientes", "/clientes/").permitAll();

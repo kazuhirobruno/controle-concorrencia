@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.example.kazuhiro.controletransaction.exceptions.IllegalTransactionTypeException;
 import br.com.example.kazuhiro.controletransaction.exceptions.LimitReachedException;
+import br.com.example.kazuhiro.controletransaction.exceptions.ResourceNotFoundException;
 import br.com.example.kazuhiro.controletransaction.exceptions.UserIdNotFoundException;
 import br.com.example.kazuhiro.controletransaction.exceptions.UserIdNotMatchesException;
 import br.com.example.kazuhiro.controletransaction.modules.transaction.dtos.CreateTransactionRequestDTO;
@@ -61,7 +62,7 @@ public class TransactionController {
     try {
       var transaction = this.createTransactionUseCase.execute(clientId, clientIdStr, createTransactionRequestDTO);
       return ResponseEntity.ok().body(transaction);
-    } catch (UserIdNotFoundException e) {
+    } catch (UserIdNotFoundException | ResourceNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     } catch (LimitReachedException | IllegalTransactionTypeException e) {
       return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());

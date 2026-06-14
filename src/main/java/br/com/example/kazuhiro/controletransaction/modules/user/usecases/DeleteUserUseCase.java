@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.com.example.kazuhiro.controletransaction.exceptions.ResourceNotFoundException;
+import br.com.example.kazuhiro.controletransaction.exceptions.UserIdNotFoundException;
 import br.com.example.kazuhiro.controletransaction.modules.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -16,10 +16,13 @@ public class DeleteUserUseCase {
 
   @Transactional(readOnly = false)
   public void execute(UUID userId) {
-    if (!this.userRepository.existsById(userId)) {
-      throw new ResourceNotFoundException("Recurso indisponível ou inexistente.");
-    }
+    var user = this.userRepository.findById(userId).orElseThrow(() -> {
+      throw new UserIdNotFoundException();
+    });
 
-    this.userRepository.deleteById(userId);
+    user.setActive(false);
+    user.setUsername("deleted_" + System.currentTimeMillis());
+
+    this.userRepository.save(user);
   }
 }

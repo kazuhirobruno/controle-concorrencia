@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.example.kazuhiro.controletransaction.exceptions.PasswordNotMatchesException;
 import br.com.example.kazuhiro.controletransaction.exceptions.UserFoundException;
+import br.com.example.kazuhiro.controletransaction.exceptions.UserIdNotFoundException;
 import br.com.example.kazuhiro.controletransaction.modules.user.dtos.ChangeUserPasswordDTO;
 import br.com.example.kazuhiro.controletransaction.modules.user.dtos.CreateUserDTO;
 import br.com.example.kazuhiro.controletransaction.modules.user.entitites.UserEntity;
@@ -88,7 +89,7 @@ public class UserController {
   }
 
   @DeleteMapping("/")
-  @Operation(summary = "Deletar conta do cliente logado", description = "Exclui permanentemente a conta do usuário atualmente autenticado no token JWT.")
+  @Operation(summary = "Deletar conta do cliente logado", description = "Torna inativa a conta do usuário atualmente autenticado no token JWT e anonimiza seus dados pessoais.")
   @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso.")
   @ApiResponse(responseCode = "401", description = "Token JWT ausente, expirado ou inválido.")
   @ApiResponse(responseCode = "404", description = "Recurso indisponível ou inexistente.")
@@ -101,7 +102,7 @@ public class UserController {
 
       this.deleteUserUseCase.execute(clientId);
       return ResponseEntity.noContent().build();
-    } catch (UsernameNotFoundException e) {
+    } catch (UserIdNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     } catch (AuthenticationException e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token JWT ausente, expirado ou inválido.");

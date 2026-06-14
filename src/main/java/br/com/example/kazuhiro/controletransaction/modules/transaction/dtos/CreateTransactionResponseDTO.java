@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 public class CreateTransactionResponseDTO {
 
   @Schema(example = "1000", description = "Limite do usuário.")
-  private int limite;
+  private Long limite;
 
   @Schema(example = "1000", description = "Saldo do usuário.")
-  private int saldo;
+  private Long saldo;
 }

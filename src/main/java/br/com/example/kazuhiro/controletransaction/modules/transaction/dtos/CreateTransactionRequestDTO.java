@@ -27,7 +27,7 @@ public class CreateTransactionRequestDTO {
   @PositiveOrZero(message = "O valor da transação deve ser igual ou maior que zero.")
   @JsonProperty("valor")
   @Schema(name = "valor", example = "1000", description = "Valor a ser debitado ou creditado.", requiredMode = RequiredMode.REQUIRED)
-  private int valor;
+  private Long valor;
 
   @NotBlank(message = "A descrição não pode estar em branco.")
   @Length(min = 1, max = 10, message = "A descrição deve conter entre 1 e 10 caracteres.")

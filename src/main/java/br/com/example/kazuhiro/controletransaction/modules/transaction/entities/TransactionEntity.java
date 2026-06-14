@@ -39,7 +39,7 @@ public class TransactionEntity {
 
   @PositiveOrZero
   @Schema(example = "1000", description = "Valor a ser debitado ou creditado.", requiredMode = RequiredMode.REQUIRED)
-  private int valor;
+  private Long valor;
 
   @NotBlank
   @Length(max = 250)

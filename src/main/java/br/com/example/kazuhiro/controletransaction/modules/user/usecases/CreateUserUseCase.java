@@ -32,6 +32,7 @@ public class CreateUserUseCase {
         .password(passwordEncoded)
         .limite(createUserDTO.getLimite())
         .saldo(createUserDTO.getSaldo())
+        .active(true)
         .build();
 
     return this.userRepository.save(userEntity);

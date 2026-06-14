@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.example.kazuhiro.controletransaction.exceptions.PasswordNotMatchesException;
+import br.com.example.kazuhiro.controletransaction.exceptions.UserIdNotFoundException;
 import br.com.example.kazuhiro.controletransaction.modules.user.dtos.ChangeUserPasswordDTO;
 import br.com.example.kazuhiro.controletransaction.modules.user.dtos.CreateUserDTO;
 import br.com.example.kazuhiro.controletransaction.modules.user.entitites.UserEntity;
@@ -67,16 +68,16 @@ class UserControllerTest {
 				.id(mockClientId)
 				.username("test")
 				.password("test")
-				.limite(1000)
-				.saldo(0)
+				.limite(1000L)
+				.saldo(0L)
 				.build();
 
 		validCreateDto = CreateUserDTO.builder()
 				.username("test")
 				.password("test")
 				.confirmPassword("test")
-				.limite(1000)
-				.saldo(0)
+				.limite(1000L)
+				.saldo(0L)
 				.build();
 
 		validPasswordDto = ChangeUserPasswordDTO.builder()
@@ -193,23 +194,21 @@ class UserControllerTest {
 	}
 
 	@Test
-	@DisplayName("Deve retornar status 404 Not Found se a deleção lançar UsernameNotFoundException")
-	void shouldReturn404WhenDeleteUserThrowsUsernameNotFoundException() throws Exception {
-		String errorMessage = "Recurso indisponível ou inexistente.";
-		doThrow(new UsernameNotFoundException(errorMessage))
+	@DisplayName("Deve retornar status 404 Not Found se a deleção lançar UserIdNotFoundException")
+	void shouldReturn404WhenDeleteThrowsUserIdNotFoundException() throws Exception {
+		doThrow(new UserIdNotFoundException())
 				.when(deleteUserUseCase)
 				.execute(any(UUID.class));
 
 		mockMvc.perform(MockMvcRequestBuilders.delete("/clientes/")
 				.requestAttr("cliente_id", mockClientId))
-				.andExpect(MockMvcResultMatchers.status().isNotFound())
-				.andExpect(MockMvcResultMatchers.content().string(errorMessage));
+				.andExpect(MockMvcResultMatchers.status().isNotFound());
 	}
 
 	@Test
 	@DisplayName("Deve retornar status 401 Unauthorized se a deleção lançar AuthenticationException")
-	void shouldReturn401WhenDeleteUserThrowsAuthenticationException() throws Exception {
-		doThrow(new AuthenticationException("Token expirado.") {
+	void shouldReturn401WhenDeleteThrowsAuthenticationException() throws Exception {
+		doThrow(new AuthenticationException("Token inválido") {
 		})
 				.when(deleteUserUseCase)
 				.execute(any(UUID.class));
@@ -222,12 +221,13 @@ class UserControllerTest {
 
 	@Test
 	@DisplayName("Deve retornar status 500 Internal Server Error se a deleção lançar uma exceção genérica")
-	void shouldReturn500WhenDeleteUserThrowsGenericException() throws Exception {
+	void shouldReturn500WhenDeleteThrowsGenericException() throws Exception {
 		doThrow(new RuntimeException())
 				.when(deleteUserUseCase)
 				.execute(any(UUID.class));
 
-		mockMvc.perform(MockMvcRequestBuilders.delete("/clientes/").requestAttr("cliente_id", mockClientId))
+		mockMvc.perform(MockMvcRequestBuilders.delete("/clientes/")
+				.requestAttr("cliente_id", mockClientId))
 				.andExpect(MockMvcResultMatchers.status().isInternalServerError())
 				.andExpect(MockMvcResultMatchers.content().string("Erro interno ao processar a requisição."));
 	}

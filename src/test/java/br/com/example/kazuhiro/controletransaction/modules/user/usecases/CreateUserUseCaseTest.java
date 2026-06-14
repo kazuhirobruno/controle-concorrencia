@@ -46,8 +46,8 @@ class CreateUserUseCaseTest {
         .username("teste")
         .password("teste")
         .confirmPassword("teste")
-        .limite(1000)
-        .saldo(0)
+        .limite(1000L)
+        .saldo(0L)
         .build();
   }
 

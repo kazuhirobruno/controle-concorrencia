@@ -31,7 +31,7 @@ public class UserEntity {
   private UUID id;
 
   @NotBlank
-  @Length(max = 20)
+  @Length(max = 50)
   @Schema(name = "username", description = "Nome de usuário para o login.", requiredMode = RequiredMode.REQUIRED)
   private String username;
 
@@ -42,10 +42,13 @@ public class UserEntity {
 
   @PositiveOrZero
   @Schema(name = "limite", description = "Limite do usuário.", requiredMode = RequiredMode.REQUIRED)
-  private Integer limite;
+  private Long limite;
 
   @Schema(name = "saldo", description = "Saldo atual do usuário.", requiredMode = RequiredMode.REQUIRED)
-  private Integer saldo;
+  private Long saldo;
+
+  @Schema(name = "active", description = "Indica se o usuário está ativo no sistema.", defaultValue = "true", requiredMode = RequiredMode.REQUIRED)
+  private boolean active;
 
   @CreationTimestamp
   private LocalDateTime createdAt;

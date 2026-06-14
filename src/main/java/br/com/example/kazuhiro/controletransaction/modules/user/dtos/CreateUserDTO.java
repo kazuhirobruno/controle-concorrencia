@@ -33,8 +33,8 @@ public class CreateUserDTO {
 
   @PositiveOrZero(message = "O limite não pode ser um valor negativo.")
   @Schema(name = "limite", description = "Limite de crédito inicial do usuário em centavos.", requiredMode = RequiredMode.REQUIRED, example = "100000")
-  private Integer limite;
+  private Long limite;
 
   @Schema(name = "saldo", description = "Saldo inicial da conta do usuário em centavos.", requiredMode = RequiredMode.REQUIRED, example = "0")
-  private Integer saldo;
+  private Long saldo;
 }

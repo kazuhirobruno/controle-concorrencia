@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import br.com.example.kazuhiro.controletransaction.exceptions.GlobalExceptionHandler;
 import br.com.example.kazuhiro.controletransaction.exceptions.IllegalTransactionTypeException;
 import br.com.example.kazuhiro.controletransaction.exceptions.LimitReachedException;
+import br.com.example.kazuhiro.controletransaction.exceptions.ResourceNotFoundException;
 import br.com.example.kazuhiro.controletransaction.exceptions.UserIdNotFoundException;
 import br.com.example.kazuhiro.controletransaction.exceptions.UserIdNotMatchesException;
 import br.com.example.kazuhiro.controletransaction.modules.transaction.dtos.CreateTransactionRequestDTO;
@@ -54,7 +55,7 @@ class TransactionControllerTest {
 		validTokenId = validClientId;
 		validRequest = CreateTransactionRequestDTO.builder()
 				.tipo("c")
-				.valor(1000)
+				.valor(1000L)
 				.descricao("Pix")
 				.build();
 	}
@@ -63,8 +64,8 @@ class TransactionControllerTest {
 	@DisplayName("Deve criar transação e retornar 200 OK")
 	void shouldCreateTransactionAndReturnOk() throws Exception {
 		CreateTransactionResponseDTO transactionResponse = CreateTransactionResponseDTO.builder()
-				.limite(0)
-				.saldo(0)
+				.limite(0L)
+				.saldo(0L)
 				.build();
 
 		when(createTransactionUseCase.execute(any(String.class), any(String.class),
@@ -96,6 +97,22 @@ class TransactionControllerTest {
 		when(createTransactionUseCase.execute(any(String.class), any(String.class),
 				any(CreateTransactionRequestDTO.class)))
 				.thenThrow(new UserIdNotFoundException());
+
+		mockMvc.perform(post("/clientes/" + validClientId + "/transacoes")
+				.requestAttr("cliente_id", validTokenId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(validRequest)))
+				.andExpect(status().isNotFound())
+				.andExpect(content().string(errorMessage));
+	}
+
+	@Test
+	@DisplayName("Deve retornar status 404 Not Found ao lançar ResourceNotFoundException para usuário inativo")
+	void shouldReturnNotFoundWhenUserIsInactive() throws Exception {
+		String errorMessage = "Recurso não encontrado.";
+		when(createTransactionUseCase.execute(any(String.class), any(String.class),
+				any(CreateTransactionRequestDTO.class)))
+				.thenThrow(new ResourceNotFoundException(errorMessage));
 
 		mockMvc.perform(post("/clientes/" + validClientId + "/transacoes")
 				.requestAttr("cliente_id", validTokenId)
