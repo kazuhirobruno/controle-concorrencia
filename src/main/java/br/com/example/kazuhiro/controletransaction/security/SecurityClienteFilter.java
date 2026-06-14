@@ -40,8 +40,8 @@ public class SecurityClienteFilter extends OncePerRequestFilter {
 
     boolean isPasswordRoute = "PATCH".equalsIgnoreCase(method) && pathMatcher.match("/clientes/password", uri);
     boolean isTransactionRoute = "POST".equalsIgnoreCase(method) && pathMatcher.match("/clientes/*/transacoes", uri);
-
-    if (isDeleteClientRoute || isPasswordRoute || isTransactionRoute) {
+    boolean isExtratoRoute = "GET".equalsIgnoreCase(method) && pathMatcher.match("/clientes/*/extrato", uri);
+    if (isDeleteClientRoute || isPasswordRoute || isTransactionRoute || isExtratoRoute) {
       String header = request.getHeader("Authorization");
       if (header == null || !header.startsWith("Bearer ")) {
         returnJsonError(response, "Token de autenticação ausente ou malformatado.",

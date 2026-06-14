@@ -6,4 +6,6 @@ import br.com.example.kazuhiro.controletransaction.modules.user.entitites.UserEn
 
 public interface UserBalanceServiceInterface {
   UserEntity applyTransaction(UUID userId, String tipo, Long valor);
+
+  UserEntity findActiveUserById(UUID userId);
 }

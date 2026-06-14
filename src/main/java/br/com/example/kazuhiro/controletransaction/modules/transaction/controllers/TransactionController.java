@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,8 +17,10 @@ import br.com.example.kazuhiro.controletransaction.exceptions.ResourceNotFoundEx
 import br.com.example.kazuhiro.controletransaction.exceptions.UserIdNotFoundException;
 import br.com.example.kazuhiro.controletransaction.exceptions.UserIdNotMatchesException;
 import br.com.example.kazuhiro.controletransaction.modules.transaction.dtos.CreateTransactionRequestDTO;
+import br.com.example.kazuhiro.controletransaction.modules.transaction.dtos.ExtratoResponseDTO;
 import br.com.example.kazuhiro.controletransaction.modules.transaction.entities.TransactionEntity;
 import br.com.example.kazuhiro.controletransaction.modules.transaction.usecases.CreateTransactionUseCase;
+import br.com.example.kazuhiro.controletransaction.modules.transaction.usecases.GetExtratoUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,6 +28,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +41,7 @@ import lombok.RequiredArgsConstructor;
 @PreAuthorize("hasRole('CLIENT')")
 public class TransactionController {
   private final CreateTransactionUseCase createTransactionUseCase;
+  private final GetExtratoUseCase getExtratoUseCase;
 
   @PostMapping("/{id}/transacoes")
   @PreAuthorize("hasRole('CLIENT')")
@@ -50,8 +56,8 @@ public class TransactionController {
   })
   public ResponseEntity<Object> createTransaction(
       HttpServletRequest request,
-      @io.swagger.v3.oas.annotations.Parameter(description = "Dados da transação que será criada", required = true) @Valid @RequestBody CreateTransactionRequestDTO createTransactionRequestDTO,
-      @io.swagger.v3.oas.annotations.Parameter(in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH, description = "ID do cliente que receberá a transação", required = true) @PathVariable("id") String clientId) {
+      @Parameter(description = "Dados da transação que será criada", required = true) @Valid @RequestBody CreateTransactionRequestDTO createTransactionRequestDTO,
+      @Parameter(in = ParameterIn.PATH, description = "ID do cliente que receberá a transação", required = true) @PathVariable("id") String clientId) {
 
     Object clientAttribute = request.getAttribute("cliente_id");
     if (clientAttribute == null) {
@@ -66,6 +72,44 @@ public class TransactionController {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     } catch (LimitReachedException | IllegalTransactionTypeException e) {
       return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
+    } catch (UserIdNotMatchesException | AuthenticationException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno ao processar a requisição.");
+    }
+  }
+
+  @GetMapping("/{id}/extrato")
+  @PreAuthorize("hasRole('CLIENT')")
+  @SecurityRequirement(name = "jwt_auth")
+  @Operation(summary = "Obtém o extrato do cliente", description = "Retorna o saldo atual e a lista das últimas transações realizadas pelo cliente.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Extrato retornado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExtratoResponseDTO.class))),
+      @ApiResponse(responseCode = "401", description = "Acesso não autorizado, token inválido ou ID divergente"),
+      @ApiResponse(responseCode = "404", description = "ID do usuário não encontrado na base de dados"),
+      @ApiResponse(responseCode = "422", description = "ID fornecido é inválido ou malformado"),
+      @ApiResponse(responseCode = "500", description = "Erro interno ao processar a requisição")
+  })
+  public ResponseEntity<Object> obterExtrato(
+      HttpServletRequest request,
+      @Parameter(in = ParameterIn.PATH, description = "ID do cliente que terá o extrato consultado", required = true) @PathVariable("id") String clientId) {
+
+    Object clientAttribute = request.getAttribute("cliente_id");
+    if (clientAttribute == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token JWT ausente, expirado ou inválido.");
+    }
+    String clientIdStr = clientAttribute.toString();
+
+    try {
+      java.util.UUID.fromString(clientId);
+      java.util.UUID.fromString(clientIdStr);
+
+      ExtratoResponseDTO extrato = this.getExtratoUseCase.execute(clientId, clientIdStr);
+      return ResponseEntity.ok().body(extrato);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("O ID fornecido não é um formato válido.");
+    } catch (UserIdNotFoundException | ResourceNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     } catch (UserIdNotMatchesException | AuthenticationException e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     } catch (Exception e) {

@@ -3,6 +3,7 @@ package br.com.example.kazuhiro.controletransaction.modules.user.service;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.example.kazuhiro.controletransaction.exceptions.LimitReachedException;
 import br.com.example.kazuhiro.controletransaction.exceptions.ResourceNotFoundException;
@@ -18,8 +19,9 @@ public class UserBalanceService implements UserBalanceServiceInterface {
   private final UserRepository userRepository;
 
   @Override
+  @Transactional
   public UserEntity applyTransaction(UUID userId, String tipo, Long valor) {
-    var user = userRepository.findById(userId).orElseThrow(UserIdNotFoundException::new);
+    var user = userRepository.findWithLockById(userId).orElseThrow(UserIdNotFoundException::new);
 
     if (!user.isActive()) {
       throw new ResourceNotFoundException("Recurso não encontrado.");
@@ -33,5 +35,17 @@ public class UserBalanceService implements UserBalanceServiceInterface {
 
     user.setSaldo(saldo);
     return userRepository.save(user);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public UserEntity findActiveUserById(UUID userId) {
+    var user = userRepository.findPureById(userId).orElseThrow(UserIdNotFoundException::new);
+
+    if (!user.isActive()) {
+      throw new ResourceNotFoundException("Recurso não encontrado.");
+    }
+
+    return user;
   }
 }

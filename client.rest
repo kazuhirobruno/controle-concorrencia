@@ -36,12 +36,19 @@ Authorization: Bearer TOKEN
 DELETE  {{baseUrl}}/clientes/
 Content-Type: application/json
 Authorization: Bearer TOKEN
+
 ### Adicionar nova transacao
 POST  {{baseUrl}}/clientes/ID/transacoes
 Content-Type: application/json
 Authorization: Bearer TOKEN
+
 {
     "valor": 1000,
-    "tipo" : "c",
+    "tipo" : "d",
     "descricao" : "descricao"
 }
+
+### Adicionar nova transacao
+GET  {{baseUrl}}/clientes/ID/extrato
+Content-Type: application/json
+Authorization: Bearer TOKEN
