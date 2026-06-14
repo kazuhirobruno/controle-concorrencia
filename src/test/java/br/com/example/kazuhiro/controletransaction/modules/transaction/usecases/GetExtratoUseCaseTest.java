@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -59,13 +59,14 @@ class GetExtratoUseCaseTest {
   @Test
   @DisplayName("Deve retornar o extrato montado com sucesso quando os IDs forem iguais")
   void shouldReturnExtratoSuccessfully() {
-    LocalDateTime dataFixa2060 = LocalDateTime.parse("2060-01-17T00:00:00");
+    Instant dataFixa2060 = Instant.parse("2060-01-17T00:00:00Z");
 
-    TransactionEntity mockTransaction = new TransactionEntity();
-    mockTransaction.setValor(10L);
-    mockTransaction.setTipo("c");
-    mockTransaction.setDescricao("descricao");
-    mockTransaction.setRealizadaEm(dataFixa2060);
+    TransactionEntity mockTransaction = TransactionEntity.builder()
+        .valor(10L)
+        .tipo("c")
+        .descricao("descricao")
+        .realizadaEm(dataFixa2060)
+        .build();
 
     when(userBalanceService.findActiveUserById(clientUuid)).thenReturn(mockUser);
     when(transactionRepository.findTop10ByClienteIdOrderByRealizadaEmDesc(clientUuid))
@@ -74,16 +75,21 @@ class GetExtratoUseCaseTest {
     ExtratoResponseDTO result = getExtratoUseCase.execute(clientIdStr, clientIdStr);
 
     assertThat(result).isNotNull();
+
     assertThat(result.saldo()).isNotNull();
     assertThat(result.saldo().limite()).isEqualTo(100000L);
     assertThat(result.saldo().total()).isEqualTo(-9098L);
     assertThat(result.saldo().dataExtrato()).isNotNull();
 
-    assertThat(result.ultimasTransacoes()).hasSize(1);
-    assertThat(result.ultimasTransacoes().get(0).valor()).isEqualTo(10L);
-    assertThat(result.ultimasTransacoes().get(0).tipo()).isEqualTo('c');
-    assertThat(result.ultimasTransacoes().get(0).descricao()).isEqualTo("descricao");
-    assertThat(result.ultimasTransacoes().get(0).realizadaEm()).isNotNull();
+    assertThat(result.ultimasTransacoes())
+        .hasSize(1)
+        .first()
+        .satisfies(transacao -> {
+          assertThat(transacao.valor()).isEqualTo(10L);
+          assertThat(transacao.tipo()).isEqualTo('c');
+          assertThat(transacao.descricao()).isEqualTo("descricao");
+          assertThat(transacao.realizadaEm()).isEqualTo(dataFixa2060);
+        });
 
     verify(userBalanceService).findActiveUserById(clientUuid);
     verify(transactionRepository).findTop10ByClienteIdOrderByRealizadaEmDesc(clientUuid);

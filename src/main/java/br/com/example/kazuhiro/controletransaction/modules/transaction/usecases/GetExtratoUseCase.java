@@ -31,11 +31,8 @@ public class GetExtratoUseCase {
     }
 
     UUID clientUuid = UUID.fromString(clientId);
-
     var user = userBalanceService.findActiveUserById(clientUuid);
-
     var transacoesBanco = this.transactionRepository.findTop10ByClienteIdOrderByRealizadaEmDesc(clientUuid);
-
     SaldoDTO saldoDTO = SaldoDTO.builder().limite(user.getLimite()).total(user.getSaldo()).dataExtrato(Instant.now())
         .build();
 
@@ -44,7 +41,7 @@ public class GetExtratoUseCase {
             .valor(t.getValor())
             .tipo(t.getTipo().toString().charAt(0))
             .descricao(t.getDescricao())
-            .realizadaEm(t.getRealizadaEm().toInstant(java.time.ZoneOffset.UTC))
+            .realizadaEm(t.getRealizadaEm())
             .build())
         .collect(Collectors.toList());
 

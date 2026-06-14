@@ -1,6 +1,6 @@
 package br.com.example.kazuhiro.controletransaction.modules.user.entitites;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -51,5 +51,5 @@ public class UserEntity {
   private boolean active;
 
   @CreationTimestamp
-  private LocalDateTime createdAt;
+  private Instant createdAt;
 }

@@ -1,6 +1,6 @@
 package br.com.example.kazuhiro.controletransaction.modules.transaction.entities;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -53,5 +53,5 @@ public class TransactionEntity {
 
   @CreationTimestamp
   @Column(name = "realizada_em")
-  private LocalDateTime realizadaEm;
+  private Instant realizadaEm;
 }

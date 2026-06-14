@@ -1,11 +1,13 @@
 @baseUrl = http://localhost:8080
+@ID = 647ed98a-f0ae-44b7-bdda-2c8c95079b4d
+@TOKEN =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0cmFuc2FjdGlvbi1jb250cm9sIiwic3ViIjoiNjQ3ZWQ5OGEtZjBhZS00NGI3LWJkZGEtMmM4Yzk1MDc5YjRkIiwicm9sZXMiOlsiQ0xJRU5UIl0sImV4cCI6MTc4MTQ2NzQwNn0.ESRSq2vcImPv2uaVk1o28jmBC17SnNtBYAs4nj4GY94
 
 ### Criar um novo cliente
 POST {{baseUrl}}/clientes/ 
 Content-Type: application/json
 
 {
-  "username": "testuser1",
+  "username": "testuser2",
   "password": "secret",
   "confirmPassword": "secret",
   "limite": 10000,
@@ -17,7 +19,7 @@ POST {{baseUrl}}/clientes/auth
 Content-Type: application/json
 
 {
-  "username": "testuser1",
+  "username": "testuser2",
   "password": "secret"
 }
 
@@ -25,7 +27,7 @@ Content-Type: application/json
 ### Trocar senha do cliente
 PATCH {{baseUrl}}/clientes/password
 Content-Type: application/json
-Authorization: Bearer TOKEN
+Authorization: Bearer {{TOKEN}}
 
 {
   "new_password": "testeee",
@@ -35,20 +37,20 @@ Authorization: Bearer TOKEN
 ### Deletar o cliente
 DELETE  {{baseUrl}}/clientes/
 Content-Type: application/json
-Authorization: Bearer TOKEN
+Authorization: Bearer {{TOKEN}}
 
 ### Adicionar nova transacao
-POST  {{baseUrl}}/clientes/ID/transacoes
+POST  {{baseUrl}}/clientes/{{ID}}/transacoes
 Content-Type: application/json
-Authorization: Bearer TOKEN
+Authorization: Bearer {{TOKEN}}
 
 {
-    "valor": 1000,
+    "valor": 10,
     "tipo" : "d",
     "descricao" : "descricao"
 }
 
 ### Adicionar nova transacao
-GET  {{baseUrl}}/clientes/ID/extrato
+GET  {{baseUrl}}/clientes/{{ID}}/extrato
 Content-Type: application/json
-Authorization: Bearer TOKEN
+Authorization: Bearer {{TOKEN}}
