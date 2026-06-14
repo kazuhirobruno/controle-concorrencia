@@ -59,11 +59,13 @@ class GetExtratoUseCaseTest {
   @Test
   @DisplayName("Deve retornar o extrato montado com sucesso quando os IDs forem iguais")
   void shouldReturnExtratoSuccessfully() {
+    LocalDateTime dataFixa2060 = LocalDateTime.parse("2060-01-17T00:00:00");
+
     TransactionEntity mockTransaction = new TransactionEntity();
     mockTransaction.setValor(10L);
     mockTransaction.setTipo("c");
     mockTransaction.setDescricao("descricao");
-    mockTransaction.setRealizadaEm(LocalDateTime.now());
+    mockTransaction.setRealizadaEm(dataFixa2060);
 
     when(userBalanceService.findActiveUserById(clientUuid)).thenReturn(mockUser);
     when(transactionRepository.findTop10ByClienteIdOrderByRealizadaEmDesc(clientUuid))

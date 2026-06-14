@@ -59,15 +59,37 @@ class TransactionControllerTest {
 	private CreateTransactionRequestDTO validRequest;
 	private String validClientId;
 	private String validTokenId;
+	private ExtratoResponseDTO extratoResponse;
+
+	private static final Instant DATA_FIXA_2060 = Instant.parse("2060-01-17T00:00:00Z");
 
 	@BeforeEach
 	void setUp() {
 		validClientId = "00000000-0000-0000-0000-000000000001";
 		validTokenId = validClientId;
+
 		validRequest = CreateTransactionRequestDTO.builder()
 				.tipo("c")
 				.valor(1000L)
 				.descricao("Pix")
+				.build();
+
+		TransacaoDTO transacao = TransacaoDTO.builder()
+				.valor(100L)
+				.tipo('c')
+				.descricao("Deposito")
+				.realizadaEm(DATA_FIXA_2060)
+				.build();
+
+		SaldoDTO saldo = SaldoDTO.builder()
+				.total(-1000L)
+				.limite(100000L)
+				.dataExtrato(DATA_FIXA_2060)
+				.build();
+
+		extratoResponse = ExtratoResponseDTO.builder()
+				.saldo(saldo)
+				.ultimasTransacoes(List.of(transacao))
 				.build();
 	}
 
@@ -199,8 +221,7 @@ class TransactionControllerTest {
 
 		mockMvc.perform(post("/clientes/" + validClientId + "/transacoes")
 				.requestAttr("cliente_id", validTokenId)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(validRequest)))
+				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(validRequest)))
 				.andExpect(status().isInternalServerError())
 				.andExpect(content().string("Erro interno ao processar a requisição."));
 	}
@@ -208,11 +229,6 @@ class TransactionControllerTest {
 	@Test
 	@DisplayName("Deve retornar extrato com sucesso 200 OK")
 	void shouldReturnExtratoSuccessfully() throws Exception {
-		SaldoDTO saldo = SaldoDTO.builder().total(-1000L).limite(100000L).dataExtrato(Instant.now()).build();
-		TransacaoDTO transacao = TransacaoDTO.builder().valor(100L).tipo('c').descricao("Deposito")
-				.realizadaEm(Instant.now()).build();
-		ExtratoResponseDTO extratoResponse = ExtratoResponseDTO.builder().saldo(saldo).ultimasTransacoes(List.of(transacao))
-				.build();
 		when(getExtratoUseCase.execute(validClientId, validTokenId)).thenReturn(extratoResponse);
 		mockMvc.perform(get("/clientes/" + validClientId + "/extrato").requestAttr("cliente_id", validTokenId))
 				.andExpect(status().isOk()).andExpect(content().json(objectMapper.writeValueAsString(extratoResponse)));
