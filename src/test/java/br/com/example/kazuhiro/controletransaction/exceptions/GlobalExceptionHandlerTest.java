@@ -9,9 +9,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 class GlobalExceptionHandlerTest {
 
@@ -54,5 +56,29 @@ class GlobalExceptionHandlerTest {
     assertThat(response).isNotNull();
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
     assertThat(response.getBody()).isEqualTo("Erro de validação nos dados enviados.");
+  }
+
+  @Test
+  @DisplayName("Deve retornar status 422 sem corpo quando a requisição não puder ser lida (HttpMessageNotReadableException)")
+  void shouldReturnStatus422WithNoContentWhenHttpMessageNotReadable() {
+    HttpMessageNotReadableException exceptionMock = mock(HttpMessageNotReadableException.class);
+
+    ResponseEntity<Void> response = globalExceptionHandler.handleReadableExceptions(exceptionMock);
+
+    assertThat(response).isNotNull();
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+    assertThat(response.getBody()).isNull();
+  }
+
+  @Test
+  @DisplayName("Deve retornar status 422 sem corpo quando houver incompatibilidade de tipo no argumento (MethodArgumentTypeMismatchException)")
+  void shouldReturnStatus422WithNoContentWhenMethodArgumentTypeMismatch() {
+    MethodArgumentTypeMismatchException exceptionMock = mock(MethodArgumentTypeMismatchException.class);
+
+    ResponseEntity<Void> response = globalExceptionHandler.handleTypeMismatch(exceptionMock);
+
+    assertThat(response).isNotNull();
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+    assertThat(response.getBody()).isNull();
   }
 }

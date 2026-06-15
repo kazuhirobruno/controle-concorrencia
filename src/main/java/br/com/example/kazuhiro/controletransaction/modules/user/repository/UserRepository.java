@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.lang.NonNull;
 
 import br.com.example.kazuhiro.controletransaction.modules.user.entitites.UserEntity;
 import jakarta.persistence.LockModeType;
@@ -15,6 +16,7 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
   Optional<UserEntity> findByUsername(String username);
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @NonNull
   Optional<UserEntity> findById(UUID id);
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
