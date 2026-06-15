@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:9999
 @ID =
-@TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0cmFuc2FjdGlvbi1jb250cm9sIiwic3ViIjoiMGMyYWQ2MjQtOGNkOC00ZGI3LTg5ZjYtYzU4MmNkMjljNWY2Iiwicm9sZXMiOlsiQ0xJRU5UIl0sImV4cCI6MTc4MTU1MTY0OH0.adUpp4ClEOnpPiMyVR71c-CqbWzQYzlZM8_jQ_nOV1Y
+@TOKEN =
 ### Criar um novo cliente
 POST {{baseUrl}}/clientes/ 
 Content-Type: application/json
