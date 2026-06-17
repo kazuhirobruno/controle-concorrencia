@@ -40,7 +40,7 @@ public class UserBalanceService implements UserBalanceServiceInterface {
   @Override
   @Transactional(readOnly = true)
   public UserEntity findActiveUserById(UUID userId) {
-    var user = userRepository.findPureById(userId).orElseThrow(UserIdNotFoundException::new);
+    var user = userRepository.findActiveUserById(userId).orElseThrow(UserIdNotFoundException::new);
 
     if (!user.isActive()) {
       throw new ResourceNotFoundException("Recurso não encontrado.");

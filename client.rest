@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:9999
-@ID =
-@TOKEN =
+@ID = 
+@TOKEN = 
 ### Criar um novo cliente
 POST {{baseUrl}}/clientes/ 
 Content-Type: application/json
@@ -45,7 +45,7 @@ Authorization: Bearer {{TOKEN}}
 
 {
     "valor": 10,
-    "tipo" : "d",
+    "tipo" : "c",
     "descricao" : "descricao"
 }
 

@@ -137,7 +137,7 @@ class UserBalanceServiceTest {
     @Test
     @DisplayName("Deve retornar o usuário ativo com sucesso via query pura")
     void shouldReturnActiveUserSuccessfully() {
-      when(userRepository.findPureById(userId)).thenReturn(Optional.of(existingUser));
+      when(userRepository.findActiveUserById(userId)).thenReturn(Optional.of(existingUser));
 
       UserEntity result = userBalanceService.findActiveUserById(userId);
 
@@ -150,7 +150,7 @@ class UserBalanceServiceTest {
     @Test
     @DisplayName("Deve lançar UserIdNotFoundException na leitura se o ID não existir")
     void shouldThrowUserIdNotFoundOnReadWhenUserDoesNotExist() {
-      when(userRepository.findPureById(userId)).thenReturn(Optional.empty());
+      when(userRepository.findActiveUserById(userId)).thenReturn(Optional.empty());
 
       assertThatThrownBy(() -> userBalanceService.findActiveUserById(userId))
           .isInstanceOf(UserIdNotFoundException.class);
@@ -160,7 +160,7 @@ class UserBalanceServiceTest {
     @DisplayName("Deve lançar ResourceNotFoundException na leitura se o usuário estiver inativo")
     void shouldThrowResourceNotFoundOnReadWhenUserIsInactive() {
       existingUser.setActive(false);
-      when(userRepository.findPureById(userId)).thenReturn(Optional.of(existingUser));
+      when(userRepository.findActiveUserById(userId)).thenReturn(Optional.of(existingUser));
 
       assertThatThrownBy(() -> userBalanceService.findActiveUserById(userId))
           .isInstanceOf(ResourceNotFoundException.class)
